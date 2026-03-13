@@ -2,6 +2,6 @@
   "pck_name": "MoreCustoms",
   "name": "MoreCustoms",
   "author": "JackL",
-  "description": "Adds custom debuffs to Custom Run. All buffs/debuffs are configurable via config.json.",
+  "description": "为自定义模式加入了更多自定义选项，所有的数值都可以在mod文件夹下的config中修改 Adds custom debuffs to Custom Run. All buffs/debuffs are configurable via config.json.",
   "version": "v1.0"
 }
