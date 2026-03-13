@@ -1,0 +1,10 @@
+{
+  "BOSS_HP_DOUBLE_DEBUFF.title": "梦魇首领",
+  "BOSS_HP_DOUBLE_DEBUFF.description": "boss现在会变得非常难以杀死",
+  "SCALING_PLATING_DEBUFF.title": "减伤屏障",
+  "SCALING_PLATING_DEBUFF.description": "所有敌人现在都会获得护甲，随时间递减，随难度增加",
+  "GOLD_GAIN_BUFF.title": "黄金赐福",
+  "GOLD_GAIN_BUFF.description": "所有玩家获得额外金币",
+  "MULTI_SMITH_BUFF.title": "锻造大师",
+  "MULTI_SMITH_BUFF.description": "在休息处选择锻造时，可一次升级多张牌"
+}

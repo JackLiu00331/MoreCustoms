@@ -1,0 +1,128 @@
+[中文] MoreCustoms - Config 说明
+
+配置文件路径：
+G:/steam/steamapps/common/Slay the Spire 2/mods/MoreCustoms/config.json
+
+--------------------------------------------------
+1) BossHpMultiplier
+对应条目：
+- Debuff（负面）：梦魇首领 / Nightmare Boss
+作用：
+- Boss 血量倍率（包含 TestSubject 二/三阶段复活血量）
+示例：
+- 2 = +100%（双倍血量）
+- 1.5 = +50%
+取值规则：
+- 必须大于 0
+- 若配置为 <= 0，mod 会自动修正为 1
+
+--------------------------------------------------
+2) PlatingBasePerAct
+对应条目：
+- Debuff（负面）：减伤屏障 / Damage Barrier
+作用：
+- 每场战斗开始时，敌人获得覆甲
+- 实际覆甲值 = PlatingBasePerAct × 当前幕数
+示例：
+- 设为 3 时：第1幕=3，第2幕=6，第3幕=9
+取值规则：
+- 必须 >= 0
+- 若配置为负数，mod 会自动修正为 0
+
+--------------------------------------------------
+3) GoldGainMultiplier
+对应条目：
+- Buff（正面）：黄金赐福 / Golden Fortune
+作用：
+- 玩家获得金币时按倍率放大
+示例：
+- 2 = +100% 金币
+- 1.5 = +50% 金币
+- 1 = 不加成
+取值规则：
+- 必须大于 0
+- 若配置为 <= 0，mod 会自动修正为 1
+
+--------------------------------------------------
+4) RestSiteSmithCount
+对应条目：
+- Buff（正面）：锻造大师 / Master Blacksmith
+作用：
+- 在休息处选择“锻造”时，一次可升级的卡牌数量
+示例：
+- 1 = 原版一次升 1 张
+- 3 = 一次升 3 张
+- 5 = 一次升 5 张
+取值规则：
+- 必须 >= 1
+- 若配置为 < 1，mod 会自动修正为 1
+
+--------------------------------------------------
+注意事项
+- 修改 config.json 后，建议重启游戏以确保生效。
+- 若后续版本新增配置项，mod 会自动补齐缺失字段，并保留你已有的设置。
+
+
+[EN] MoreCustoms - Config Guide
+
+Config file path:
+G:/steam/steamapps/common/Slay the Spire 2/mods/MoreCustoms/config.json
+
+--------------------------------------------------
+1) BossHpMultiplier
+Mapped modifier:
+- Debuff: Nightmare Boss
+Effect:
+- Boss HP multiplier (also applies to TestSubject phase 2/3 revive HP)
+Examples:
+- 2 = +100% (double HP)
+- 1.5 = +50%
+Valid range:
+- Must be greater than 0
+- If set to <= 0, the mod auto-corrects it to 1
+
+--------------------------------------------------
+2) PlatingBasePerAct
+Mapped modifier:
+- Debuff: Damage Barrier
+Effect:
+- At combat start, enemies gain Plated Armor
+- Actual value = PlatingBasePerAct × current Act number
+Example:
+- If set to 3: Act 1 = 3, Act 2 = 6, Act 3 = 9
+Valid range:
+- Must be >= 0
+- If set to a negative value, the mod auto-corrects it to 0
+
+--------------------------------------------------
+3) GoldGainMultiplier
+Mapped modifier:
+- Buff: Golden Fortune
+Effect:
+- Multiplies gold gained by players
+Examples:
+- 2 = +100% gold
+- 1.5 = +50% gold
+- 1 = no bonus
+Valid range:
+- Must be greater than 0
+- If set to <= 0, the mod auto-corrects it to 1
+
+--------------------------------------------------
+4) RestSiteSmithCount
+Mapped modifier:
+- Buff: Master Blacksmith
+Effect:
+- Number of cards you can upgrade per Smith action at Rest Site
+Examples:
+- 1 = vanilla behavior (upgrade 1 card)
+- 3 = upgrade 3 cards
+- 5 = upgrade 5 cards
+Valid range:
+- Must be >= 1
+- If set to < 1, the mod auto-corrects it to 1
+
+--------------------------------------------------
+Notes
+- After editing config.json, restarting the game is recommended.
+- If future versions add new config keys, the mod auto-fills missing keys while preserving your existing values.

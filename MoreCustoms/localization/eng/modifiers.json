@@ -1,0 +1,10 @@
+{
+  "BOSS_HP_DOUBLE_DEBUFF.title": "Nightmare Boss",
+  "BOSS_HP_DOUBLE_DEBUFF.description": "Bosses are now much harder to kill.",
+  "SCALING_PLATING_DEBUFF.title": "Damage Barrier",
+  "SCALING_PLATING_DEBUFF.description": "All enemies now gain armor that decreases over time and increases with difficulty.",
+  "GOLD_GAIN_BUFF.title": "Golden Fortune",
+  "GOLD_GAIN_BUFF.description": "All players gain extra gold.",
+  "MULTI_SMITH_BUFF.title": "Master Blacksmith",
+  "MULTI_SMITH_BUFF.description": "At Rest Site, Smith can upgrade multiple cards each use."
+}

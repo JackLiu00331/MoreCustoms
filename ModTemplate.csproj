@@ -2,7 +2,9 @@
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>true</ImplicitUsings>
-        <Nullable>{NullableChecks}</Nullable> <!--Makes code analysis regarding null values stricter.-->
+        <AssemblyName>MoreCustoms</AssemblyName>
+        <ModPackageName>MoreCustoms</ModPackageName>
+        <Nullable>enable</Nullable> <!--Makes code analysis regarding null values stricter.-->
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <DefaultItemExcludes>packages/**</DefaultItemExcludes>
     </PropertyGroup>
@@ -22,10 +24,10 @@
         <AutoSteamPath>$(registry:HKEY_CURRENT_USER\Software\Valve\Steam@SteamPath)\steamapps</AutoSteamPath>
         <SteamLibraryPath Condition="'$(SteamLibraryPath)' == '' and Exists('$(AutoSteamPath)/common/Slay the Spire 2')">$(AutoSteamPath)</SteamLibraryPath>
         <!-- If on Windows and Slay the Spire 2 is not installed in your default steam library, adjust the following.-->
-        <SteamLibraryPath Condition="'$(SteamLibraryPath)' == ''">C:/Program Files (x86)/Steam/steamapps</SteamLibraryPath>
+        <SteamLibraryPath Condition="'$(SteamLibraryPath)' == ''">G:/steam/steamapps</SteamLibraryPath>
         <Sts2Path Condition="'$(Sts2Path)' == ''">$(SteamLibraryPath)/common/Slay the Spire 2</Sts2Path>
         <Sts2DataDir Condition="'$(Sts2DataDir)' == ''">$(Sts2Path)/data_sts2_windows_x86_64</Sts2DataDir>
-        <GodotPath Condition="'$(GodotPath)' == ''">C:/megadot/MegaDot_v4.5.1-stable_mono_win64.exe</GodotPath>
+        <GodotPath Condition="'$(GodotPath)' == ''">D:/Godot_v4.5.1-stable_mono_win64/Godot_v4.5.1-stable_mono_win64/Godot_v4.5.1-stable_mono_win64.exe</GodotPath>
     </PropertyGroup>
 
     <!-- Linux -->
@@ -55,20 +57,20 @@
         <Reference Include="sts2">
             <HintPath>$(Sts2DataDir)/sts2.dll</HintPath>
             <Private>false</Private>
-            <Publicize>{PublicizeSts}</Publicize> <!--Allows private/protected field references but may cause errors.-->
+            <Publicize>false</Publicize> <!--Allows private/protected field references but may cause errors.-->
         </Reference>
 
         <PackageReference Include="Alchyr.Sts2.BaseLib" Version="*" PrivateAssets="All" />
         <PackageReference Include="Alchyr.Sts2.ModAnalyzers" Version="*" />
-        <AdditionalFiles Include="ModTemplate/localization/**/*.json"/>
+        <AdditionalFiles Include="MoreCustoms/localization/**/*.json"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="ModTemplate/**" />
+        <Compile Remove="MoreCustoms/**" />
         <Compile Remove="materials/**" />
         <Compile Remove="shaders/**" />
         <Compile Remove="images/**" />
-        <EmbeddedResource Remove="ModTemplate/**" />
+        <EmbeddedResource Remove="MoreCustoms/**" />
         <EmbeddedResource Remove="materials/**" />
         <EmbeddedResource Remove="shaders/**" />
         <EmbeddedResource Remove="images/**" />
@@ -78,7 +80,7 @@
         <None Include=".gitignore" />
         <None Include="mod_manifest.json" />
         <None Include="project.godot"/>
-        <None Include="ModTemplate/**" />
+        <None Include="MoreCustoms/**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -88,19 +90,31 @@
         </PackageReference>
     </ItemGroup>
 
-    <Target Name="CopyToModsFolderOnBuild" AfterTargets="PostBuildEvent">
-        <Message Text="Copying .dll to mods folder." Importance="high" />
-        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(Sts2Path)/mods/$(MSBuildProjectName)/" />
-        <Message Text="Copying BaseLib to mods folder." Importance="high" />
+    <Target Name="CopyToModsFolderOnBuild" AfterTargets="Build">
+        <PropertyGroup>
+            <ModOutputDir>$(Sts2Path)/mods/$(ModPackageName)</ModOutputDir>
+        </PropertyGroup>
+        <MakeDir Directories="$(ModOutputDir)" />
+        <Message Text="Copying mod files to mods folder." Importance="high" />
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModOutputDir)/" />
+        <Copy SourceFiles="mod_manifest.json" DestinationFolder="$(ModOutputDir)/" />
+
         <ItemGroup>
-            <BaseLibFiles Include="packages/alchyr.sts2.baselib/**/lib/**/BaseLib.dll;packages/alchyr.sts2.baselib/**/Content/BaseLib.pck"/>
+            <ConfigFile Include="config.json" Condition="!Exists('$(ModOutputDir)/config.json')" />
+            <BaseLibDllFiles Include="packages/alchyr.sts2.baselib/**/lib/**/BaseLib.dll" Condition="!Exists('$(Sts2Path)/mods/BaseLib.dll')" />
+            <BaseLibPckFiles Include="packages/alchyr.sts2.baselib/**/Content/BaseLib.pck" Condition="!Exists('$(Sts2Path)/mods/BaseLib.pck')" />
         </ItemGroup>
-        <Copy SourceFiles="@(BaseLibFiles)" DestinationFolder="$(Sts2Path)/mods/" />
+        <Copy SourceFiles="@(ConfigFile)" DestinationFolder="$(ModOutputDir)/" />
+        <Delete Files="$(ModOutputDir)/project.godot" Condition="Exists('$(ModOutputDir)/project.godot')" />
+        <RemoveDir Directories="$(ModOutputDir)/ModTemplate" Condition="Exists('$(ModOutputDir)/ModTemplate')" />
+        <Message Text="Copying BaseLib to mods folder if missing." Importance="high" />
+        <Copy SourceFiles="@(BaseLibDllFiles)" DestinationFolder="$(Sts2Path)/mods/" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(BaseLibPckFiles)" DestinationFolder="$(Sts2Path)/mods/" SkipUnchangedFiles="true" />
     </Target>
 
     <Target Name="GodotPublish" AfterTargets="Publish" Condition="'$(GodotPath)' != '' and Exists('$(GodotPath)') and '$(IsInnerGodotExport)' != 'true'">
         <Message Text="Exporting Godot .pck to mods folder" Importance="high"/>
-        <Exec Command="&quot;$(GodotPath)&quot; --headless --export-pack &quot;BasicExport&quot; &quot;$(Sts2Path)/mods/$(MSBuildProjectName)/$(MSBuildProjectName).pck&quot;"
+          <Exec Command="&quot;$(GodotPath)&quot; --headless --export-pack &quot;BasicExport&quot; &quot;$(Sts2Path)/mods/$(ModPackageName)/$(ModPackageName).pck&quot;"
               EnvironmentVariables="IsInnerGodotExport=true;MSBUILDDISABLENODEREUSE=1"
               ContinueOnError="WarnAndContinue"/>
     </Target>
