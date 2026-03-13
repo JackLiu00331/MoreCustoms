@@ -216,3 +216,31 @@ If you still have an old folder from previous name (`mods/ModTemplate`), you can
 主要来源（反编译）：
 - Boss 遭遇定义：`STS2Decode/MegaCrit.Sts2.Core.Models.Encounters/*Boss.cs`
 - 怪物血量定义：`STS2Decode/MegaCrit.Sts2.Core.Models.Monsters/*.cs` 中 `MinInitialHp / MaxInitialHp`
+
+
+
+
+
+#Jerry TODO:
+推荐方案（最符合你描述）
+
+核心目标：地图上所有普通节点都显示为问号，并且进入问号时有概率进入休息处。
+实现思路：
+用 Modifier 的地图 Hook 把地图节点类型统一改为 Unknown（保留 Ancient 起点和 Boss 点不动），这个能力在 AbstractModel.cs 的 ModifyGeneratedMap。
+同时对 Unknown 房间的实际落地逻辑做补丁：当前原版 Unknown 掷点不包含 RestSite（可见 UnknownMapPointOdds.cs），需要在 Roll 逻辑里加入 RestSite 概率。
+对应入口映射在 RunManager.cs 的 RollRoomTypeFor。
+优点：效果和文案“勇者无畏”完全一致，玩家看到和实际行为一致。
+风险：要 patch 一处私有流程，但可控。
+备选方案 A（更轻量，但不完全符合）
+
+只改地图图标显示为问号，不改实际房间类型。
+优点：实现最稳；缺点：本质不是“问号房机制”，只是视觉伪装，不满足你“问号会出现休息处”的机制目标。
+备选方案 B（机制近似）
+
+全图 Unknown，但不动 Unknown 掷点；改成在 Event 中注入“休息事件”。
+优点：少改底层；缺点：休息处变成事件分支，不是真正 RestSite 房间，手感和奖励逻辑会有偏差。
+我建议直接做“推荐方案”。
+你只要确认两点我就开工：
+
+RestSite 在问号中的权重你想设多少（例如 10%）？
+是否保留 Boss/Ancient 节点原样（通常建议保留）？

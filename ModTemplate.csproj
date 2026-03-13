@@ -101,15 +101,15 @@
 
         <ItemGroup>
             <ConfigFile Include="config.json" Condition="!Exists('$(ModOutputDir)/config.json')" />
-            <BaseLibDllFiles Include="packages/alchyr.sts2.baselib/**/lib/**/BaseLib.dll" Condition="!Exists('$(Sts2Path)/mods/BaseLib.dll')" />
-            <BaseLibPckFiles Include="packages/alchyr.sts2.baselib/**/Content/BaseLib.pck" Condition="!Exists('$(Sts2Path)/mods/BaseLib.pck')" />
+            <BaseLibDllFiles Include="packages/alchyr.sts2.baselib/**/lib/**/BaseLib.dll" />
+            <BaseLibPckFiles Include="packages/alchyr.sts2.baselib/**/Content/BaseLib.pck" />
         </ItemGroup>
         <Copy SourceFiles="@(ConfigFile)" DestinationFolder="$(ModOutputDir)/" />
         <Delete Files="$(ModOutputDir)/project.godot" Condition="Exists('$(ModOutputDir)/project.godot')" />
         <RemoveDir Directories="$(ModOutputDir)/ModTemplate" Condition="Exists('$(ModOutputDir)/ModTemplate')" />
-        <Message Text="Copying BaseLib to mods folder if missing." Importance="high" />
-        <Copy SourceFiles="@(BaseLibDllFiles)" DestinationFolder="$(Sts2Path)/mods/" SkipUnchangedFiles="true" />
-        <Copy SourceFiles="@(BaseLibPckFiles)" DestinationFolder="$(Sts2Path)/mods/" SkipUnchangedFiles="true" />
+        <Message Text="Copying BaseLib into mod folder." Importance="high" />
+        <Copy SourceFiles="@(BaseLibDllFiles)" DestinationFolder="$(ModOutputDir)/" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(BaseLibPckFiles)" DestinationFolder="$(ModOutputDir)/" SkipUnchangedFiles="true" />
     </Target>
 
     <Target Name="GodotPublish" AfterTargets="Publish" Condition="'$(GodotPath)' != '' and Exists('$(GodotPath)') and '$(IsInnerGodotExport)' != 'true'">
