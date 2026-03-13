@@ -32,6 +32,38 @@ Expected deployed files are in:
 
 If you still have an old folder from previous name (`mods/ModTemplate`), you can delete it.
 
+## Modifier 图标接入指南（本次功能总结）
+
+本次已经为 4 个 modifier 接入了 topbar 图标，核心规则如下：
+
+- 游戏会自动按 `ModifierModel` 的 `Id.Entry` 去找图标。
+- 默认图标路径规则是：`res://images/packed/modifiers/<id_lowercase>.png`
+- 例如：`BOSS_HP_DOUBLE_DEBUFF` 对应 `images/packed/modifiers/boss_hp_double_debuff.png`
+
+### 下次新增功能时，如何给新 modifier 加图标
+
+1. 先确定你的 modifier ID（通常就是 localization key 的前缀，如 `NEW_COOL_BUFF`）。
+2. 准备一张 png，命名为该 ID 的小写蛇形格式：`new_cool_buff.png`。
+3. 放到项目目录：`images/packed/modifiers/new_cool_buff.png`。
+4. 用 Godot 导入该资源（会自动生成对应 `.import` 与 `.godot/imported/*.ctex` 缓存）：
+	 - 最简单方式：执行一次 `dotnet publish ModTemplate.csproj`（会触发 Godot 导出流程）。
+5. 重启游戏，在 Custom Run 里启用该 modifier，检查 topbar 图标是否替换 NOPE。
+
+### 打包与发布注意事项
+
+- 发布后在 `mods/MoreCustoms/` 看不到单独 `images` 文件夹是正常的。
+- 图片资源会被打进 `MoreCustoms.pck`，运行时从 `.pck` 内加载。
+- 所以发布给其他用户时，确保这三个文件是同一次产物即可：
+	- `MoreCustoms.dll`
+	- `MoreCustoms.pck`
+	- `mod_manifest.json`
+
+### 常见问题排查
+
+- 仍显示 NOPE：先检查文件名是否与 ID 小写格式完全一致。
+- 改了图片没生效：重新 `dotnet publish` 后重启游戏。
+- 只 build 不 publish：代码会更新，但资源 `.pck` 可能还是旧的。
+
 ## Config (可自定义数值)
 
 `MoreCustoms` 会在这里读取配置：

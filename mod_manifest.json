@@ -2,6 +2,6 @@
   "pck_name": "MoreCustoms",
   "name": "MoreCustoms",
   "author": "JackL",
-  "description": "Adds custom debuffs to Custom Run. Current debuff: Boss Health x2. All buffs/debuffs are configurable via config.json.",
+  "description": "Adds custom debuffs to Custom Run. All buffs/debuffs are configurable via config.json.",
   "version": "v1.0"
 }
