@@ -6,5 +6,7 @@
   "GOLD_GAIN_BUFF.title": "Golden Fortune",
   "GOLD_GAIN_BUFF.description": "All players gain extra gold.",
   "MULTI_SMITH_BUFF.title": "Master Blacksmith",
-  "MULTI_SMITH_BUFF.description": "At Rest Site, Smith can upgrade multiple cards each use."
+  "MULTI_SMITH_BUFF.description": "At Rest Site, Smith can upgrade multiple cards each use.",
+  "FEARLESS_HERO_BUFF.title": "Fearless Hero",
+  "FEARLESS_HERO_BUFF.description": "Only random event rooms will appear on the map."
 }
