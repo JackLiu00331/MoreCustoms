@@ -3,5 +3,5 @@
   "name": "MoreCustoms",
   "author": "JackL",
   "description": "Adds custom debuffs to Custom Run. Current debuff: Boss Health x2. All buffs/debuffs are configurable via config.json.",
-  "version": "v0.1"
+  "version": "v1.0"
 }

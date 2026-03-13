@@ -10,6 +10,56 @@ namespace ModTemplate.Modifiers;
 
 public class BossHpDoubleDebuff : ModifierModel
 {
+  public static bool IsActiveFor(Creature creature)
+  {
+    if (creature.Side != CombatSide.Enemy)
+    {
+      return false;
+    }
+
+    if (creature.CombatState?.Encounter?.RoomType != RoomType.Boss)
+    {
+      return false;
+    }
+
+    return creature.CombatState.Modifiers.Any(modifier => modifier.GetType() == typeof(BossHpDoubleDebuff));
+  }
+
+  public static decimal GetConfiguredMultiplier()
+  {
+    decimal multiplier = MoreCustomsConfig.Current.BossHpMultiplier;
+    if (multiplier <= 0m)
+    {
+      return 1m;
+    }
+
+    return multiplier;
+  }
+
+  public static async Task ApplyIfNeeded(Creature creature)
+  {
+    if (!IsActiveFor(creature))
+    {
+      return;
+    }
+
+    decimal multiplier = GetConfiguredMultiplier();
+    int baseMaxHp = creature.MonsterMaxHpBeforeModification ?? creature.Monster?.MaxInitialHp ?? creature.MaxHp;
+    int targetMaxHp = System.Math.Max(1, (int)(baseMaxHp * multiplier));
+
+    if (creature.MaxHp == targetMaxHp)
+    {
+      return;
+    }
+
+    if (creature.MaxHp != baseMaxHp)
+    {
+      return;
+    }
+
+    await CreatureCmd.SetMaxAndCurrentHp(creature, targetMaxHp);
+  }
+
   public override async Task AfterRoomEntered(AbstractRoom room)
   {
     if (room is not CombatRoom combatRoom)
@@ -22,36 +72,14 @@ public class BossHpDoubleDebuff : ModifierModel
       return;
     }
 
-    decimal multiplier = MoreCustomsConfig.Current.BossHpMultiplier;
-    if (multiplier <= 0m)
-    {
-      return;
-    }
-
     foreach (Creature creature in combatRoom.CombatState.Enemies)
     {
-      await CreatureCmd.SetMaxAndCurrentHp(creature, creature.MaxHp * multiplier);
+      await ApplyIfNeeded(creature);
     }
   }
 
   public override async Task AfterCreatureAddedToCombat(Creature creature)
   {
-    if (creature.Side != CombatSide.Enemy)
-    {
-      return;
-    }
-
-    if (creature.CombatState?.Encounter?.RoomType != RoomType.Boss)
-    {
-      return;
-    }
-
-    decimal multiplier = MoreCustomsConfig.Current.BossHpMultiplier;
-    if (multiplier <= 0m)
-    {
-      return;
-    }
-
-    await CreatureCmd.SetMaxAndCurrentHp(creature, creature.MaxHp * multiplier);
+    await ApplyIfNeeded(creature);
   }
 }
