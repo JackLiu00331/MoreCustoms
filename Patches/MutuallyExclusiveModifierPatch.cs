@@ -15,7 +15,7 @@ public static class MutuallyExclusiveModifierPatch
   [HarmonyPostfix]
   private static void AddCustomMutualExclusion(ref IReadOnlyList<IReadOnlySet<ModifierModel>> __result)
   {
-    if (!ModelDb.Contains(typeof(FearlessHeroBuff)) || !ModelDb.Contains(typeof(DeadlyEvents)))
+    if (!ModelDb.Contains(typeof(FearlessHeroBuff)))
     {
       return;
     }
@@ -23,32 +23,56 @@ public static class MutuallyExclusiveModifierPatch
     List<IReadOnlySet<ModifierModel>> updated = __result.ToList();
 
     ModifierModel fearless;
-    ModifierModel deadly;
     try
     {
       fearless = ModelDb.Modifier<FearlessHeroBuff>();
-      deadly = ModelDb.Modifier<DeadlyEvents>();
     }
     catch (Exception)
     {
       return;
     }
 
-    bool alreadyExists = updated.Any(group =>
+    if (ModelDb.Contains(typeof(DeadlyEvents)))
+    {
+      TryAddMutualExclusionGroup<DeadlyEvents>(updated, fearless);
+    }
+
+    TryAddMutualExclusionGroup<BigGameHunter>(updated, fearless);
+
+    __result = updated;
+  }
+
+  private static void TryAddMutualExclusionGroup<T>(List<IReadOnlySet<ModifierModel>> groups, ModifierModel fearless)
+    where T : ModifierModel
+  {
+    if (!ModelDb.Contains(typeof(T)))
+    {
+      return;
+    }
+
+    ModifierModel other;
+    try
+    {
+      other = ModelDb.Modifier<T>();
+    }
+    catch (Exception)
+    {
+      return;
+    }
+
+    bool alreadyExists = groups.Any(group =>
       group.Any(modifier => modifier.GetType() == typeof(FearlessHeroBuff)) &&
-      group.Any(modifier => modifier.GetType() == typeof(DeadlyEvents)));
+      group.Any(modifier => modifier.GetType() == typeof(T)));
 
     if (alreadyExists)
     {
       return;
     }
 
-    updated.Add(new HashSet<ModifierModel>
+    groups.Add(new HashSet<ModifierModel>
     {
       fearless,
-      deadly
+      other
     });
-
-    __result = updated;
   }
 }

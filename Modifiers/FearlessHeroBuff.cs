@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Map;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Runs.History;
@@ -161,7 +163,7 @@ public class FearlessHeroBuff : ModifierModel
   {
     int roomRows = runState.Map
       .GetAllMapPoints()
-      .Where(point => point.CanBeModified)
+      .Where(point => point.PointType != MapPointType.Boss && point.PointType != MapPointType.Ancient)
       .Select(point => point.coord.row)
       .Distinct()
       .Count();
@@ -269,5 +271,32 @@ public class FearlessHeroBuff : ModifierModel
     }
 
     return map;
+  }
+
+  public override CardCreationOptions ModifyCardRewardCreationOptions(Player player, CardCreationOptions options)
+  {
+    if (options.Source != CardCreationSource.Encounter || options.RarityOdds != CardRarityOddsType.EliteEncounter)
+    {
+      return options;
+    }
+
+    if (options.Flags.HasFlag(CardCreationFlags.NoCardPoolModifications) || options.Flags.HasFlag(CardCreationFlags.NoRarityModification))
+    {
+      return options;
+    }
+
+    List<CardModel> rareCards = options.GetPossibleCards(player)
+      .Where(card => card.Rarity == CardRarity.Rare)
+      .ToList();
+
+    if (rareCards.Count <= 0)
+    {
+      rareCards = player.Character.CardPool
+        .GetUnlockedCards(player.UnlockState, player.RunState.CardMultiplayerConstraint)
+        .Where(card => card.Rarity == CardRarity.Rare)
+        .ToList();
+    }
+
+    return options.WithCustomPool(rareCards, CardRarityOddsType.Uniform);
   }
 }
