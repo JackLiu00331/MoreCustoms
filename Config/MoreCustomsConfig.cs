@@ -38,16 +38,22 @@ public static class MoreCustomsConfig
       bool hasPlatingBasePerAct = raw.Contains("\"PlatingBasePerAct\"", StringComparison.OrdinalIgnoreCase);
       bool hasGoldGainMultiplier = raw.Contains("\"GoldGainMultiplier\"", StringComparison.OrdinalIgnoreCase);
       bool hasRestSiteSmithCount = raw.Contains("\"RestSiteSmithCount\"", StringComparison.OrdinalIgnoreCase);
+      bool hasEnableEndlessDebugLogs = raw.Contains("\"EnableEndlessDebugLogs\"", StringComparison.OrdinalIgnoreCase);
+      bool hasEndlessEnemyHpPerActPercent = raw.Contains("\"EndlessEnemyHpPerActPercent\"", StringComparison.OrdinalIgnoreCase);
+      bool hasEndlessBossExtraHpPerActPercent = raw.Contains("\"EndlessBossExtraHpPerActPercent\"", StringComparison.OrdinalIgnoreCase);
+      bool hasEndlessDoubleBossExtraHpPercent = raw.Contains("\"EndlessDoubleBossExtraHpPercent\"", StringComparison.OrdinalIgnoreCase);
+      bool hasEndlessEnemyStrengthEveryActs = raw.Contains("\"EndlessEnemyStrengthEveryActs\"", StringComparison.OrdinalIgnoreCase);
+      bool hasEndlessEnemyStrengthPerStep = raw.Contains("\"EndlessEnemyStrengthPerStep\"", StringComparison.OrdinalIgnoreCase);
 
       bool normalizedChanged = Normalize();
-      bool shouldRewrite = loaded == null || !hasBossHpMultiplier || !hasPlatingBasePerAct || !hasGoldGainMultiplier || !hasRestSiteSmithCount || normalizedChanged;
+      bool shouldRewrite = loaded == null || !hasBossHpMultiplier || !hasPlatingBasePerAct || !hasGoldGainMultiplier || !hasRestSiteSmithCount || !hasEnableEndlessDebugLogs || !hasEndlessEnemyHpPerActPercent || !hasEndlessBossExtraHpPerActPercent || !hasEndlessDoubleBossExtraHpPercent || !hasEndlessEnemyStrengthEveryActs || !hasEndlessEnemyStrengthPerStep || normalizedChanged;
 
       if (shouldRewrite)
       {
         SaveCurrent();
       }
 
-      logger.Info($"[MoreCustoms] Config loaded: bossHpMultiplier={Current.BossHpMultiplier}, platingBasePerAct={Current.PlatingBasePerAct}, goldGainMultiplier={Current.GoldGainMultiplier}, restSiteSmithCount={Current.RestSiteSmithCount}");
+      logger.Info($"[MoreCustoms] Config loaded: bossHpMultiplier={Current.BossHpMultiplier}, platingBasePerAct={Current.PlatingBasePerAct}, goldGainMultiplier={Current.GoldGainMultiplier}, restSiteSmithCount={Current.RestSiteSmithCount}, endlessDebug={Current.EnableEndlessDebugLogs}, endlessHpPerActPct={Current.EndlessEnemyHpPerActPercent}, endlessBossExtraHpPerActPct={Current.EndlessBossExtraHpPerActPercent}, endlessDoubleBossExtraHpPct={Current.EndlessDoubleBossExtraHpPercent}, endlessStrengthEveryActs={Current.EndlessEnemyStrengthEveryActs}, endlessStrengthPerStep={Current.EndlessEnemyStrengthPerStep}");
     }
     catch (Exception ex)
     {
@@ -85,6 +91,41 @@ public static class MoreCustomsConfig
       changed = true;
     }
 
+    if (!Current.EnableEndlessDebugLogs)
+    {
+      Current.EnableEndlessDebugLogs = false;
+    }
+
+    if (Current.EndlessEnemyHpPerActPercent < 0m)
+    {
+      Current.EndlessEnemyHpPerActPercent = 0m;
+      changed = true;
+    }
+
+    if (Current.EndlessBossExtraHpPerActPercent < 0m)
+    {
+      Current.EndlessBossExtraHpPerActPercent = 0m;
+      changed = true;
+    }
+
+    if (Current.EndlessDoubleBossExtraHpPercent < 0m)
+    {
+      Current.EndlessDoubleBossExtraHpPercent = 0m;
+      changed = true;
+    }
+
+    if (Current.EndlessEnemyStrengthEveryActs < 1)
+    {
+      Current.EndlessEnemyStrengthEveryActs = 1;
+      changed = true;
+    }
+
+    if (Current.EndlessEnemyStrengthPerStep < 0)
+    {
+      Current.EndlessEnemyStrengthPerStep = 0;
+      changed = true;
+    }
+
     return changed;
   }
 
@@ -106,5 +147,17 @@ public static class MoreCustomsConfig
     public decimal GoldGainMultiplier { get; set; } = 2m;
 
     public int RestSiteSmithCount { get; set; } = 2;
+
+    public bool EnableEndlessDebugLogs { get; set; } = true;
+
+    public decimal EndlessEnemyHpPerActPercent { get; set; } = 10m;
+
+    public decimal EndlessBossExtraHpPerActPercent { get; set; } = 10m;
+
+    public decimal EndlessDoubleBossExtraHpPercent { get; set; } = 15m;
+
+    public int EndlessEnemyStrengthEveryActs { get; set; } = 1;
+
+    public int EndlessEnemyStrengthPerStep { get; set; } = 1;
   }
 }

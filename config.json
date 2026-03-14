@@ -2,5 +2,11 @@
   "BossHpMultiplier": 2,
   "PlatingBasePerAct": 5,
   "GoldGainMultiplier": 2,
-  "RestSiteSmithCount": 2
+  "RestSiteSmithCount": 2,
+  "EnableEndlessDebugLogs": true,
+  "EndlessEnemyHpPerActPercent": 10,
+  "EndlessBossExtraHpPerActPercent": 10,
+  "EndlessDoubleBossExtraHpPercent": 15,
+  "EndlessEnemyStrengthEveryActs": 1,
+  "EndlessEnemyStrengthPerStep": 1
 }

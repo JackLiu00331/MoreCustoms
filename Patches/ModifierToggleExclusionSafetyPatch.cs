@@ -13,22 +13,48 @@ public static class ModifierToggleExclusionSafetyPatch
   private static readonly System.Reflection.FieldInfo TickboxesField = AccessTools.Field(typeof(NCustomRunModifiersList), "_modifierTickboxes");
 
   [HarmonyPostfix]
-  private static void EnforceFearlessBigGameHunterExclusion(NCustomRunModifiersList __instance, NRunModifierTickbox tickbox)
+  private static void EnforceModifierExclusionRules(NCustomRunModifiersList __instance, NRunModifierTickbox tickbox)
   {
     if (tickbox?.Modifier == null || !tickbox.IsTicked)
     {
       return;
     }
 
-    bool isFearless = tickbox.Modifier.GetType() == typeof(FearlessHeroBuff);
-    bool isBigGameHunter = tickbox.Modifier.GetType() == typeof(BigGameHunter);
-    if (!isFearless && !isBigGameHunter)
+    List<NRunModifierTickbox>? tickboxes = TickboxesField.GetValue(__instance) as List<NRunModifierTickbox>;
+    if (tickboxes == null)
     {
       return;
     }
 
-    List<NRunModifierTickbox>? tickboxes = TickboxesField.GetValue(__instance) as List<NRunModifierTickbox>;
-    if (tickboxes == null)
+    bool isEndless = tickbox.Modifier.GetType() == typeof(InfinityEndlessModeDebuff);
+    if (isEndless)
+    {
+      foreach (NRunModifierTickbox other in tickboxes)
+      {
+        if (other == tickbox || other.Modifier == null)
+        {
+          continue;
+        }
+
+        if (other.IsTicked)
+        {
+          other.IsTicked = false;
+        }
+      }
+
+      return;
+    }
+
+    NRunModifierTickbox? endlessTickbox = tickboxes.FirstOrDefault(other => other.Modifier?.GetType() == typeof(InfinityEndlessModeDebuff));
+    if (endlessTickbox?.IsTicked == true)
+    {
+      tickbox.IsTicked = false;
+      return;
+    }
+
+    bool isFearless = tickbox.Modifier.GetType() == typeof(FearlessHeroBuff);
+    bool isBigGameHunter = tickbox.Modifier.GetType() == typeof(BigGameHunter);
+    if (!isFearless && !isBigGameHunter)
     {
       return;
     }

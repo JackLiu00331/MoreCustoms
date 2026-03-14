@@ -12,5 +12,7 @@
   "NO_POTION_DEBUFF.title": "Potion Lockdown",
   "NO_POTION_DEBUFF.description": "You cannot use or obtain potions. Potion rewards become gold, and merchants no longer sell potions.",
   "CLONE_RUN_DEBUFF.title": "Pel's Minion",
-  "CLONE_RUN_DEBUFF.description": "Starting in Act 2, you automatically gain Pel's Clone blessing, but you will sacrifice a portion of your HP to him when you clone."
+  "CLONE_RUN_DEBUFF.description": "Starting in Act 2, you automatically gain Pel's Clone blessing, but you will sacrifice a portion of your HP to him when you clone.",
+  "INFINITY_ENDLESS_MODE_DEBUFF.title": "Infinite Loop",
+  "INFINITY_ENDLESS_MODE_DEBUFF.description": "After defeating the final boss, your run continues into a new 15-room loop map instead of ending."
 }

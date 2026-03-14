@@ -12,5 +12,7 @@
   "NO_POTION_DEBUFF.title": "封禁药水",
   "NO_POTION_DEBUFF.description": "你无法使用或获得药水，药水奖励会改为金币，商人不再售卖药水。",
   "CLONE_RUN_DEBUFF.title": "佩尔的仆从",
-  "CLONE_RUN_DEBUFF.description": "现在第二幕你会自动获得佩尔的克隆祝福，但是你会在克隆时向他献出一部分生命值。"
+  "CLONE_RUN_DEBUFF.description": "现在第二幕你会自动获得佩尔的克隆祝福，但是你会在克隆时向他献出一部分生命值。",
+  "INFINITY_ENDLESS_MODE_DEBUFF.title": "无限轮回",
+  "INFINITY_ENDLESS_MODE_DEBUFF.description": "击败最终首领后将进入新的15层循环地图，而不是结束本局。"
 }

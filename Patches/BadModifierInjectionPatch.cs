@@ -17,6 +17,7 @@ public static class BadModifierInjectionPatch
   {
     List<ModifierModel> updated = __result.ToList();
 
+    TryAddModifier<InfinityEndlessModeDebuff>(updated);
     TryAddModifier<BossHpDoubleDebuff>(updated);
     TryAddModifier<ScalingPlatingDebuff>(updated);
     TryInsertAfter<DeadlyEvents, FearlessHeroBuff>(updated);
