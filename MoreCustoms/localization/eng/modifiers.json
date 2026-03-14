@@ -8,5 +8,9 @@
   "MULTI_SMITH_BUFF.title": "Master Blacksmith",
   "MULTI_SMITH_BUFF.description": "At Rest Site, Smith can upgrade multiple cards each use.",
   "FEARLESS_HERO_BUFF.title": "Fearless Hero",
-  "FEARLESS_HERO_BUFF.description": "Only random event rooms will appear on the map."
+  "FEARLESS_HERO_BUFF.description": "Only random event rooms will appear on the map.",
+  "NO_POTION_DEBUFF.title": "Potion Lockdown",
+  "NO_POTION_DEBUFF.description": "You cannot use or obtain potions. Potion rewards become gold, and merchants no longer sell potions.",
+  "CLONE_RUN_DEBUFF.title": "Clone Run",
+  "CLONE_RUN_DEBUFF.description": "In Act 2, the Ancient is always Pael and the only blessing option is Pael's Growth. Each Rest Site clone costs 30% of current HP (rounded down), and cloning is disabled at 1 HP."
 }

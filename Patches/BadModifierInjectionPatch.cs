@@ -20,6 +20,8 @@ public static class BadModifierInjectionPatch
     TryAddModifier<BossHpDoubleDebuff>(updated);
     TryAddModifier<ScalingPlatingDebuff>(updated);
     TryInsertAfter<DeadlyEvents, FearlessHeroBuff>(updated);
+    TryInsertAfter<FearlessHeroBuff, NoPotionDebuff>(updated);
+    TryInsertAfter<NoPotionDebuff, CloneRunDebuff>(updated);
 
     __result = updated;
   }

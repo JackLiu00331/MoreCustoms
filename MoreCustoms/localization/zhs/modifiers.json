@@ -8,5 +8,9 @@
   "MULTI_SMITH_BUFF.title": "锻造大师",
   "MULTI_SMITH_BUFF.description": "在休息处选择锻造时，可一次升级多张牌",
   "FEARLESS_HERO_BUFF.title": "勇者无畏",
-  "FEARLESS_HERO_BUFF.description": "地图中将只出现随机事件房间。"
+  "FEARLESS_HERO_BUFF.description": "地图中将只出现随机事件房间。",
+  "NO_POTION_DEBUFF.title": "封禁药水",
+  "NO_POTION_DEBUFF.description": "你无法使用或获得药水，药水奖励会改为金币，商人不再售卖药水。",
+  "CLONE_RUN_DEBUFF.title": "克隆局",
+  "CLONE_RUN_DEBUFF.description": "第二幕古神必定为佩尔，且祝福选项仅有佩尔的增生组织。每次在休息处执行克隆会损失当前生命值的30%（向下取整），当生命值为1时无法克隆。"
 }
