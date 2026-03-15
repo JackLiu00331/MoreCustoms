@@ -1,5 +1,6 @@
 .godot/
 bin/
+obj/
 /android/
 .git/
 .idea/
@@ -8,5 +9,12 @@ publish/
 Properties/
 packages/
 .editorconfig
+config.json
+*.import
+*.uid
+*.pdb
+*.suo
+*.userosscache
+*.sln.docstates
 *cs.uid
 *.user

@@ -1,135 +1,147 @@
-## MoreCustoms（Slay the Spire 2 Mod）
+# MoreCustoms（Slay the Spire 2 Mod）
 
-一个基于 ModTemplate + BaseLib 的 STS2 自定义 Mod。
+为《杀戮尖塔2》自定义模式提供更多可选 Modifier（含正面 Buff 与负面 Debuff），并支持通过配置文件调整关键数值。
 
-## 快速开始（开发/测试）
+## 给玩家
 
-每次改完代码、Patch、本地化或图片后，建议按下面顺序：
+### 功能简介
 
-1. 关闭游戏
-2. 构建 DLL
+本 Mod 会在「自定义模式」中加入额外选项，偏向高难玩法，同时提供少量补偿型 Buff。
 
-```powershell
-dotnet build ModTemplate.csproj
-```
+### 当前已实现
 
-3. 重新打包资源（`.pck`）
+#### 正面 Buff
 
-```powershell
-dotnet publish ModTemplate.csproj
-```
+- `黄金赐福`（`GOLD_GAIN_BUFF`）：所有玩家获得额外金币
+- `锻造大师`（`MULTI_SMITH_BUFF`）：休息处可一次升级多张牌
 
-4. 启动游戏验证
+#### 负面 Debuff
 
-默认部署目录：
+- `梦魇首领`（`BOSS_HP_DOUBLE_DEBUFF`）：Boss 更耐打（可配置倍率）
+- `减伤屏障`（`SCALING_PLATING_DEBUFF`）：敌人开局获得随进度成长的护甲
+- `勇者无畏`（`FEARLESS_HERO_BUFF`）：地图房间强制变更为特殊规则分布
+- `封禁行为`（`NO_POTION_DEBUFF`）：禁用药水获取与使用（并替换奖励逻辑）
+- `克隆局`（`CLONE_RUN_DEBUFF`）：第二幕古神与克隆逻辑改写，附带生命代价
+- `无限轮回`（`INFINITY_ENDLESS_MODE_DEBUFF`）：击败最终 Boss 后进入循环地图
 
-`X:/steam/steamapps/common/Slay the Spire 2/mods/MoreCustoms/`
+### 安装
+
+将以下文件放入：
+
+`<你的Steam路径>/steamapps/common/Slay the Spire 2/mods/MoreCustoms/`
 
 关键文件：
+
 - `MoreCustoms.dll`
 - `MoreCustoms.pck`
 - `mod_manifest.json`
-- `config.json`
+- `config.json`（首次运行后可自动生成/更新）
 
-## 当前已实现 Modifier
+### 常见问题
 
-- `梦魇首领`（`BOSS_HP_DOUBLE_DEBUFF`）
-- `减伤屏障`（`SCALING_PLATING_DEBUFF`）
-- `黄金赐福`（`GOLD_GAIN_BUFF`）
-- `锻造大师`（`MULTI_SMITH_BUFF`）
-- `勇者无畏`（`FEARLESS_HERO_BUFF`）
+- 自定义模式里看不到新选项：请先删除旧版 `mods/MoreCustoms/` 后完整覆盖新包（不要只替换 dll）。
+- 出现 `BaseLib.pck did not supply a mod manifest`：请删除 `mods` 目录中的所有 `BaseLib.pck`。
+- 新选项加载时报 `LocException ... modifiers.xxx.title`：说明当前 `pck` 与 `dll` 版本不一致，请重新 `publish` 并完整替换。
 
-## TODO 路线图
+---
 
-说明：
-- 以当前仓库实现为准打勾（`[x]`）。
+## 给开发者
 
-- [ ] 短视症：除了当前房间的下一层的房间情况，你将无法看到其他的任何房间
-- [ ] 小心炸弹：每一位敌人都有概率获得一枚炸弹，在死亡时发生爆炸
-- [ ] 双重压力：每当你对敌人使用一张攻击卡牌都会收到 1 点伤害
-- [ ] 熔岩爆发：战斗房间的 8 个回合之后熔岩将会喷发，对所有单位造成一半生命值的伤害
-- [ ] 丧尸危机：每个战斗房间会额外生成 3 个僵尸（2 个小僵尸一个大僵尸）
-- [ ] 复仇战士：每当一名角色死亡，其余所有友方单位获得 20% 最大血量并且清除自身所有负面效果
-- [ ] 拿钱说话：每使用一张卡牌都会扣除 1 点金币
-- [ ] Boss 战：每经历 12 个房间，下一场战斗将迎战随机 boss
-- [ ] 生命汲取：所有的敌人获得造成伤害量的一半生命回复（格挡无法回复）
-- [x] 减伤屏障：所有敌人开局时获得护甲，随层数升高
-- [ ] 刃刀入肉：承受的未格挡伤害翻倍
-- [ ] 虚空召唤：地图中某些房间会遭遇额外一名召唤类敌人，击败后获得升级奖励
-- [x] 勇者无畏：所有房间都被 ? 替换，? 现在会出现休息处
-- [ ] 暗无天日：战斗回合中，某些手牌你无法看清
-- [ ] 来去无踪：除了敌人每回合的意图，你无法查看任何有关敌人的信息
-- [x] 封禁行为：你无法使用药水
-- [ ] 顽强作战：所有敌人死亡后会额外行动一回合
-- [ ] 套娃麻烦：所有敌人死亡后会生成一个只有一半数值的套娃，重复 3 次
-- [ ] 遇强则强：你的升级卡牌越多，敌人会变得越强
-- [x] 梦魇敌首：boss 会变得更加强大（仓库实现名：`梦魇首领`）
-- [ ] 隐秘行动：无法查看敌人的意图
-- [ ] 全力猛攻：敌人的所有意图全部是进攻
-- [ ] 纳税日：获得的金币减少 20%
-- [ ] 饥不择食：获得的卡牌奖励变为随机获得
-- [ ] 虚空侵蚀：战斗开始时，你的半数卡牌获得虚无
-- [ ] 饥荒：进入每个房间时你必须支付 5 点金币购买食物，否则就会饿死！
-- [ ] 硬件故障：所有的能力卡牌不会出现在本局游戏
-- [ ] 黑死病：你感染了黑死病，每过一个回合损失 5 点生命值，所有的药水被替换为抗生素（为你恢复血量并且暂时免疫黑死病）
-- [ ] 今日歇业：商人不会在本局游戏出现，但是战斗结束后有几率遭遇神秘商人
-- [ ] 灵魂连接：对单个敌人造成的伤害会均等的分摊给所有敌人
-- [ ] 石头局：开局给10张巨石，还有两瓶青蛙形状药水。
-- [x] 克隆局：第二幕古神必定为佩尔，且祝福选项有且仅有佩尔的增生组织；每次在休息处进行克隆会损失当前生命值 30%（向下取整），生命值为 1 时无法克隆
-### 额外说明
+### 本地开发流程
 
-- [x] 黄金赐福：所有玩家获得额外金币
-- [x] 锻造大师：在休息处可一次升级多张牌
+1. 关闭游戏
+2. 构建 dll
 
-## Topbar 图标规则（简版）
+```powershell
+dotnet build MoreCustoms.csproj
+```
 
-Modifier 图标按 ID 自动读取：
+3. 打包并发布 pck
 
-`res://images/packed/modifiers/<id_lowercase>.png`
+```powershell
+dotnet publish MoreCustoms.csproj
+```
 
-例如：
-- `FEARLESS_HERO_BUFF` → `images/packed/modifiers/fearless_hero_buff.png`
+4. 启动游戏验证日志
 
-新增图标流程：
-1. 准备 png，文件名与 modifier id 小写下划线一致
-2. 放入 `images/packed/modifiers/`
-3. 执行 `dotnet publish ModTemplate.csproj`
-4. 重启游戏验证
+### 项目结构
 
-## 配置文件
+- 入口：`MainFile.cs`
+- Modifier 实现：`Modifiers/`
+- 注入与玩法补丁：`Patches/`
+- 本地化：
+  - `MoreCustoms/localization/eng/modifiers.json`
+  - `MoreCustoms/localization/zhs/modifiers.json`
+- 图标资源：`images/packed/modifiers/`
 
-配置路径：
+### 新增一个 Modifier（最小步骤）
 
-`X:/steam/steamapps/common/Slay the Spire 2/mods/MoreCustoms/config.json`
+1. 在 `Modifiers/` 新建类，继承 `ModifierModel`
+2. 在注入补丁中加入到 Good/Bad 列表
+3. 为 `modifiers.<ID>.title/description` 补齐中英文文本
+4. 添加对应图标：`images/packed/modifiers/<id_lowercase>.png`
+5. `dotnet build` + `dotnet publish` 后进游戏验证
 
-默认字段：
+### 配置文件
+
+路径：
+
+`<你的Steam路径>/steamapps/common/Slay the Spire 2/mods/MoreCustoms/config.json`
+
+示例：
 
 ```json
 {
   "BossHpMultiplier": 2,
   "PlatingBasePerAct": 5,
   "GoldGainMultiplier": 2,
-  "RestSiteSmithCount": 2
+  "RestSiteSmithCount": 2,
+  "EnableEndlessDebugLogs": true
 }
 ```
 
-含义：
-- `BossHpMultiplier`：Boss 血量倍率
-- `PlatingBasePerAct`：敌方护甲基础值（随幕数生效）
-- `GoldGainMultiplier`：金币倍率
-- `RestSiteSmithCount`：休息处每次可升级张数
+---
 
-## 开发入口（最常用）
+## TODO（路线图）
 
-- 入口：`MainFile.cs`
-- Modifier 实现目录：`Modifiers/`
-- 注入与玩法 Patch：`Patches/`
-- 本地化：
-  - `MoreCustoms/localization/eng/modifiers.json`
-  - `MoreCustoms/localization/zhs/modifiers.json`
+说明：`[x]` 为已完成，`[ ]` 为计划中。
 
-新增一个 Modifier 的最小步骤：
-1. 在 `Modifiers/` 新建类（继承 `ModifierModel`）
-2. 在 `Patches/` 注入到 Good/Bad 列表
-3. 补齐中英文本地化
-4. `dotnet build` + `dotnet publish`
+### 正面 Buff
+
+- [x] 黄金赐福：所有玩家获得额外金币
+- [x] 锻造大师：在休息处可一次升级多张牌
+- [ ] 复仇战士：每当一名角色死亡，其余所有友方单位获得 20% 最大血量并清除负面效果
+
+### 负面 Debuff
+
+- [x] 梦魇敌首：Boss 会变得更加强大（仓库实现名：`梦魇首领`）
+- [x] 减伤屏障：所有敌人开局时获得护甲，随层数升高
+- [x] 勇者无畏：所有房间都被 `?` 替换，且 `?` 可出现休息处
+- [x] 封禁行为：你无法使用药水
+- [x] 克隆局：第二幕古神固定为佩尔，克隆会损失当前生命值 30%（向下取整）
+- [ ] 短视症：除了当前房间下一层，无法看到其他房间信息
+- [ ] 小心炸弹：敌人有概率携带炸弹，死亡时爆炸
+- [ ] 双重压力：每当你对敌人使用攻击牌，自己受到 1 点伤害
+- [ ] 熔岩爆发：战斗第 8 回合后熔岩喷发，对所有单位造成半血伤害
+- [ ] 丧尸危机：每个战斗房间额外生成 3 个僵尸（2 小 1 大）
+- [ ] 拿钱说话：每使用一张卡牌扣除 1 点金币
+- [ ] Boss 战：每经历 12 个房间，下一场战斗改为随机 Boss
+- [ ] 生命汲取：敌人获得其伤害一半的生命回复（格挡不触发）
+- [ ] 刃刀入肉：承受的未格挡伤害翻倍
+- [ ] 虚空召唤：某些房间遭遇额外召唤类敌人，击败后获得升级奖励
+- [ ] 暗无天日：战斗中部分手牌信息被遮蔽
+- [ ] 来去无踪：除敌人意图外，无法查看更多敌人信息
+- [ ] 顽强作战：敌人死亡后会额外行动一回合
+- [ ] 套娃麻烦：敌人死亡后生成半数值单位，最多重复 3 次
+- [ ] 遇强则强：你的升级卡越多，敌人越强
+- [ ] 隐秘行动：无法查看敌人意图
+- [ ] 全力猛攻：敌人的所有意图都转为进攻
+- [ ] 纳税日：获得金币减少 20%
+- [ ] 饥不择食：卡牌奖励改为随机获得
+- [ ] 虚空侵蚀：战斗开始时半数卡牌获得虚无
+- [ ] 饥荒：每进一个房间必须支付 5 金币购买食物，否则死亡
+- [ ] 硬件故障：能力牌不再出现在本局
+- [ ] 黑死病：每回合损失 5 点生命，药水替换为抗生素
+- [ ] 今日歇业：商人不出现，但战斗后有概率遇到神秘商人
+- [ ] 灵魂连接：对单体敌人伤害按比例分摊给所有敌人
+- [ ] 石头局：开局获得 10 张巨石与两瓶青蛙形状药水
