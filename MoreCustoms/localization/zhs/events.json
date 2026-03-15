@@ -1,6 +1,12 @@
 {
   "ENDLESS_CHOICE_EVENT.title": "无尽异变",
   "ENDLESS_CHOICE_EVENT.pages.INITIAL.description": "轮回再次收紧。请选择一个异变，带入本幕。",
+  "ENDLESS_CHOICE_EVENT.pages.INITIAL.boons.gold.title": "财宝脉冲",
+  "ENDLESS_CHOICE_EVENT.pages.INITIAL.boons.gold.description": "本轮没有新的诅咒可选，获得一笔额外金币以备后续挑战。",
+  "ENDLESS_CHOICE_EVENT.pages.INITIAL.boons.heal.title": "喘息片刻",
+  "ENDLESS_CHOICE_EVENT.pages.INITIAL.boons.heal.description": "本轮没有新的诅咒可选，恢复生命后继续深入轮回。",
+  "ENDLESS_CHOICE_EVENT.pages.INITIAL.boons.relic.title": "古神献礼",
+  "ENDLESS_CHOICE_EVENT.pages.INITIAL.boons.relic.description": "本轮没有新的诅咒可选，获得一件遗物作为轮回的馈赠。",
   "ENDLESS_CHOICE_EVENT.pages.DONE.picked": "异变已生效，轮回变得更加诡异。",
   "ENDLESS_CHOICE_EVENT.pages.DONE.no_choices": "这一次，轮回没有给出新的异变。",
   "ENDLESS_CHOICE_EVENT.pages.DONE.already_has": "这个异变已在本局中生效。"

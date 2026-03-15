@@ -1,6 +1,12 @@
 {
   "ENDLESS_CHOICE_EVENT.title": "Endless Mutation",
   "ENDLESS_CHOICE_EVENT.pages.INITIAL.description": "The loop tightens. Choose one mutation to carry into this act.",
+  "ENDLESS_CHOICE_EVENT.pages.INITIAL.boons.gold.title": "Treasure Pulse",
+  "ENDLESS_CHOICE_EVENT.pages.INITIAL.boons.gold.description": "No new curses emerge. Claim extra gold to fuel the next cycle.",
+  "ENDLESS_CHOICE_EVENT.pages.INITIAL.boons.heal.title": "Breathing Space",
+  "ENDLESS_CHOICE_EVENT.pages.INITIAL.boons.heal.description": "No new curses emerge. Restore health before plunging deeper.",
+  "ENDLESS_CHOICE_EVENT.pages.INITIAL.boons.relic.title": "Ancient Tribute",
+  "ENDLESS_CHOICE_EVENT.pages.INITIAL.boons.relic.description": "No new curses emerge. Receive a relic as tribute from the loop.",
   "ENDLESS_CHOICE_EVENT.pages.DONE.picked": "The choice takes hold. The loop grows stranger.",
   "ENDLESS_CHOICE_EVENT.pages.DONE.no_choices": "The loop offers no new mutation this time.",
   "ENDLESS_CHOICE_EVENT.pages.DONE.already_has": "That mutation is already part of your run."
