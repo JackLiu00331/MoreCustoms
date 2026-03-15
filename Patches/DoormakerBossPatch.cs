@@ -17,6 +17,18 @@ public static class DoormakerBossPatch
   private static async Task ReapplyBossHpScalingAfterDoorReviveAsync(DoorRevivalPower power, Task originalTask)
   {
     await originalTask;
+
+    if (power.Owner == null)
+    {
+      return;
+    }
+
+    // Endless 中避免门扉在反复开合时重复触发额外血量补偿。
+    if (InfinityEndlessModeDebuff.IsActive(power.Owner.CombatState?.RunState))
+    {
+      return;
+    }
+
     await BossHpDoubleDebuff.ApplyIfNeeded(power.Owner);
   }
 }

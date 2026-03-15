@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Commands;
@@ -13,9 +14,27 @@ namespace ModTemplate.Modifiers;
 
 public class InfinityEndlessModeDebuff : ModifierModel
 {
+  private static readonly HashSet<Creature> ScaledCreatures = new();
+
   private static int GetEndlessDepth(IRunState runState)
   {
     return Math.Max(0, runState.CurrentActIndex - 2);
+  }
+
+  public static bool IsDoubleBossActForRun(IRunState runState)
+  {
+    return runState.Act?.HasSecondBoss == true;
+  }
+
+  public static decimal GetEndlessBossHpMultiplierForRun(IRunState runState, bool isDoubleBossAct)
+  {
+    int endlessDepth = GetEndlessDepth(runState);
+    if (endlessDepth <= 0)
+    {
+      return 1m;
+    }
+
+    return GetHpMultiplierForEndlessDepth(endlessDepth, isBossRoom: true, isDoubleBossAct);
   }
 
   private static decimal GetHpMultiplierForEndlessDepth(int endlessDepth, bool isBossRoom, bool isDoubleBossAct)
@@ -40,6 +59,11 @@ public class InfinityEndlessModeDebuff : ModifierModel
       return;
     }
 
+    if (ScaledCreatures.Contains(creature))
+    {
+      return;
+    }
+
     int endlessDepth = GetEndlessDepth(runState);
     if (endlessDepth <= 0)
     {
@@ -52,6 +76,8 @@ public class InfinityEndlessModeDebuff : ModifierModel
     {
       await CreatureCmd.SetMaxAndCurrentHp(creature, targetMaxHp);
     }
+
+    ScaledCreatures.Add(creature);
 
     int targetStrength = GetStrengthBonusForEndlessDepth(endlessDepth);
     if (targetStrength <= 0)
@@ -97,6 +123,8 @@ public class InfinityEndlessModeDebuff : ModifierModel
     {
       return;
     }
+
+    ScaledCreatures.Clear();
 
     bool isBossRoom = combatRoom.RoomType == RoomType.Boss;
     bool isDoubleBossAct = isBossRoom && combatRoom.Act.HasSecondBoss;

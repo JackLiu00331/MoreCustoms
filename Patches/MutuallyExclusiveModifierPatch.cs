@@ -11,6 +11,7 @@ namespace ModTemplate.Patches;
 [HarmonyPatch(typeof(ModelDb))]
 public static class MutuallyExclusiveModifierPatch
 {
+  [HarmonyPriority(Priority.Last)]
   [HarmonyPatch("get_MutuallyExclusiveModifiers")]
   [HarmonyPostfix]
   private static void AddCustomMutualExclusion(ref IReadOnlyList<IReadOnlySet<ModifierModel>> __result)

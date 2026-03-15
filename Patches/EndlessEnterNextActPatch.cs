@@ -91,17 +91,24 @@ public static class EndlessEnterNextActPatch
 
   private static async Task EnterActWithRetry(RunManager runManager, int nextActIndex)
   {
-    try
+    const int maxAttempts = 4;
+    for (int attempt = 1; attempt <= maxAttempts; attempt++)
     {
-      await runManager.EnterAct(nextActIndex);
+      try
+      {
+        await runManager.EnterAct(nextActIndex);
+        return;
+      }
+      catch (ObjectDisposedException ex) when (attempt < maxAttempts)
+      {
+        int delayMs = 60 * attempt;
+        MainFile.Logger.Warn($"[Endless] EnterAct hit disposed object ({ex.ObjectName}) on attempt {attempt}/{maxAttempts}. Retrying in {delayMs}ms for act {nextActIndex}.");
+        await Task.Yield();
+        await Task.Delay(delayMs);
+      }
     }
-    catch (ObjectDisposedException ex)
-    {
-      MainFile.Logger.Warn($"[Endless] EnterAct hit disposed object ({ex.ObjectName}). Retrying once for act {nextActIndex}.");
-      await Task.Yield();
-      await Task.Delay(60);
-      await runManager.EnterAct(nextActIndex);
-    }
+
+    await runManager.EnterAct(nextActIndex);
   }
 
   private static EndlessProgress GetOrCreateProgress(RunState runState)

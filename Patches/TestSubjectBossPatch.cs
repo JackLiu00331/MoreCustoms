@@ -11,20 +11,28 @@ namespace ModTemplate.Patches;
 public static class TestSubjectBossPatch
 {
   [HarmonyPrefix]
-  private static void DoubleReviveHpWhenDebuffActive(TestSubject __instance, ref int baseRespawnHp)
+  private static void ScaleReviveHpForBossModifiersAndEndless(TestSubject __instance, ref int baseRespawnHp)
   {
-    if (__instance.Creature?.CombatState?.Modifiers == null)
+    if (__instance.Creature?.CombatState?.RunState == null)
     {
       return;
+    }
+
+    decimal multiplier = 1m;
+    var runState = __instance.Creature.CombatState.RunState;
+
+    if (InfinityEndlessModeDebuff.IsActive(runState))
+    {
+      bool isDoubleBossAct = InfinityEndlessModeDebuff.IsDoubleBossActForRun(runState);
+      multiplier *= InfinityEndlessModeDebuff.GetEndlessBossHpMultiplierForRun(runState, isDoubleBossAct);
     }
 
     bool hasDebuff = __instance.Creature.CombatState.Modifiers.Any(modifier => modifier.GetType() == typeof(BossHpDoubleDebuff));
-    if (!hasDebuff)
+    if (hasDebuff)
     {
-      return;
+      multiplier *= MoreCustomsConfig.Current.BossHpMultiplier;
     }
 
-    decimal multiplier = MoreCustomsConfig.Current.BossHpMultiplier;
     if (multiplier <= 0m)
     {
       return;
