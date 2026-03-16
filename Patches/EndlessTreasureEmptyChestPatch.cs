@@ -1,7 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using HarmonyLib;
+using MegaCrit.Sts2.Core.Entities.Relics;
+using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Models.RelicPools;
+using MegaCrit.Sts2.Core.Runs;
 using MegaCrit.Sts2.Core.Multiplayer.Game;
 
 namespace ModTemplate.Patches;
@@ -26,9 +31,19 @@ public static class EndlessTreasureEmptyChestPatch
   private static readonly FieldInfo CurrentRelicsField =
     AccessTools.Field(typeof(TreasureRoomRelicSynchronizer), "_currentRelics");
 
+  private static readonly FieldInfo PlayerCollectionField =
+    AccessTools.Field(typeof(TreasureRoomRelicSynchronizer), "_playerCollection");
+
   [HarmonyPostfix]
   private static void RemoveNullRelicsFromPool(TreasureRoomRelicSynchronizer __instance)
   {
+    if (AnyPlayerHasAllTreasureRelics(__instance))
+    {
+      CurrentRelicsField.SetValue(__instance, new List<RelicModel>());
+      MainFile.Logger.Info("[TreasureRoom] At least one player has all eligible relics. Forcing empty chest state.");
+      return;
+    }
+
     if (CurrentRelicsField.GetValue(__instance) is not List<RelicModel> currentRelics)
     {
       return;
@@ -44,5 +59,56 @@ public static class EndlessTreasureEmptyChestPatch
         $"[TreasureRoom] Relic pool exhausted: removed {removed} null relic slot(s). " +
         "Chest will show empty state with gold reward instead.");
     }
+  }
+
+  private static bool AnyPlayerHasAllTreasureRelics(TreasureRoomRelicSynchronizer synchronizer)
+  {
+    if (PlayerCollectionField.GetValue(synchronizer) is not IPlayerCollection playerCollection)
+    {
+      return false;
+    }
+
+    foreach (Player player in playerCollection.Players)
+    {
+      if (PlayerHasAllEligibleTreasureRelics(player))
+      {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private static bool PlayerHasAllEligibleTreasureRelics(Player player)
+  {
+    RunState? runState = player.RunState as RunState;
+    if (runState == null)
+    {
+      return false;
+    }
+
+    HashSet<ModelId> owned = player.Relics.Select(r => r.Id).ToHashSet();
+    IEnumerable<RelicModel> unlocked = ModelDb.RelicPool<SharedRelicPool>().GetUnlockedRelics(player.UnlockState)
+      .Concat(player.Character.RelicPool.GetUnlockedRelics(player.UnlockState));
+
+    foreach (RelicModel relic in unlocked)
+    {
+      if (relic.Rarity is not (RelicRarity.Common or RelicRarity.Uncommon or RelicRarity.Rare or RelicRarity.Shop))
+      {
+        continue;
+      }
+
+      if (!relic.IsAllowed(runState))
+      {
+        continue;
+      }
+
+      if (!owned.Contains(relic.Id))
+      {
+        return false;
+      }
+    }
+
+    return true;
   }
 }
