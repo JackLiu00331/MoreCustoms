@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using HarmonyLib;
+using MegaCrit.Sts2.Core.Multiplayer.Game;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Acts;
 using MegaCrit.Sts2.Core.Runs;
@@ -38,6 +40,8 @@ public static class EndlessEnterNextActPatch
 
   private static readonly object TransitionLock = new();
 
+  private static readonly SemaphoreSlim EnterActGate = new(1, 1);
+
   [HarmonyPrefix]
   private static bool ContinueIntoEndlessLoop(RunManager __instance, ref Task __result)
   {
@@ -70,18 +74,29 @@ public static class EndlessEnterNextActPatch
 
   private static async Task EnterEndlessActAsync(RunManager runManager, RunState runState)
   {
+    bool gateAcquired = false;
     try
     {
-      EndlessProgress progress = GetOrCreateProgress(runState);
-      progress.LoopCount++;
-      AppendLoopAct(runState, progress.LoopCount);
+      await EnterActGate.WaitAsync();
+      gateAcquired = true;
+      using (new NetLoadingHandle(runManager.NetService))
+      {
+        EndlessProgress progress = GetOrCreateProgress(runState);
+        progress.LoopCount++;
+        AppendLoopAct(runState, progress.LoopCount);
 
-      int nextActIndex = runState.CurrentActIndex + 1;
-      MainFile.Logger.Info($"[Endless] Loop #{progress.LoopCount} appended (initial acts={progress.InitialActCount}). Entering act index {nextActIndex}.");
-      await EnterActWithRetry(runManager, nextActIndex);
+        int nextActIndex = runState.CurrentActIndex + 1;
+        MainFile.Logger.Info($"[Endless] Loop #{progress.LoopCount} appended (initial acts={progress.InitialActCount}). Entering act index {nextActIndex}.");
+        await EnterActWithRetry(runManager, nextActIndex);
+      }
     }
     finally
     {
+      if (gateAcquired)
+      {
+        EnterActGate.Release();
+      }
+
       lock (TransitionLock)
       {
         TransitioningRuns.Remove(runState);
@@ -91,17 +106,22 @@ public static class EndlessEnterNextActPatch
 
   private static async Task EnterActWithRetry(RunManager runManager, int nextActIndex)
   {
-    const int maxAttempts = 4;
+    const int maxAttempts = 8;
     for (int attempt = 1; attempt <= maxAttempts; attempt++)
     {
       try
       {
+        if (attempt > 1)
+        {
+          await Task.Yield();
+        }
+
         await runManager.EnterAct(nextActIndex);
         return;
       }
       catch (ObjectDisposedException ex) when (attempt < maxAttempts)
       {
-        int delayMs = 60 * attempt;
+        int delayMs = 250 * attempt;
         MainFile.Logger.Warn($"[Endless] EnterAct hit disposed object ({ex.ObjectName}) on attempt {attempt}/{maxAttempts}. Retrying in {delayMs}ms for act {nextActIndex}.");
         await Task.Yield();
         await Task.Delay(delayMs);
