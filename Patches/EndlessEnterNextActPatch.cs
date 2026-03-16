@@ -74,9 +74,11 @@ public static class EndlessEnterNextActPatch
 
   private static async Task EnterEndlessActAsync(RunManager runManager, RunState runState)
   {
+    bool gateAcquired = false;
     try
     {
       await EnterActGate.WaitAsync();
+      gateAcquired = true;
       using (new NetLoadingHandle(runManager.NetService))
       {
         EndlessProgress progress = GetOrCreateProgress(runState);
@@ -90,7 +92,7 @@ public static class EndlessEnterNextActPatch
     }
     finally
     {
-      if (EnterActGate.CurrentCount == 0)
+      if (gateAcquired)
       {
         EnterActGate.Release();
       }
