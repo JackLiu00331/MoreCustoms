@@ -10,6 +10,7 @@ using MegaCrit.Sts2.Core.Events;
 using MegaCrit.Sts2.Core.Factories;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization;
+using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Modifiers;
 using MegaCrit.Sts2.Core.Nodes;
@@ -68,6 +69,8 @@ public class EndlessChoiceEvent : EventModel
   private static readonly LocString EndlessBoonRelicTitle = new("events", "ENDLESS_CHOICE_EVENT.pages.INITIAL.boons.relic.title");
   private static readonly LocString EndlessBoonRelicDescription = new("events", "ENDLESS_CHOICE_EVENT.pages.INITIAL.boons.relic.description");
 
+  public override bool IsShared => true;
+
   public override LocString InitialDescription => L10NLookup("ENDLESS_CHOICE_EVENT.pages.INITIAL.description");
 
   public override IEnumerable<string> GetAssetPaths(IRunState runState)
@@ -99,6 +102,7 @@ public class EndlessChoiceEvent : EventModel
 
     List<Type> selected = candidates
       .OrderBy(_ => Rng.NextInt(int.MaxValue))
+      .ThenBy(type => type.FullName)
       .Take(EndlessDebuffChoiceCount)
       .ToList();
 
@@ -147,19 +151,25 @@ public class EndlessChoiceEvent : EventModel
     };
   }
 
-  private async Task ChooseDebuff(ModifierModel modifier)
+  private Task ChooseDebuff(ModifierModel modifier)
   {
     if (Owner?.RunState is not RunState runState)
     {
       SetEventFinished(L10NLookup("ENDLESS_CHOICE_EVENT.pages.DONE.no_choices"));
-      return;
+      return Task.CompletedTask;
+    }
+
+    if (IsShared && !ShouldApplySharedGlobalEffect(runState))
+    {
+      SetEventFinished(L10NLookup("ENDLESS_CHOICE_EVENT.pages.DONE.picked"));
+      return Task.CompletedTask;
     }
 
     List<ModifierModel> updated = runState.Modifiers.ToList();
     if (updated.Any(existing => existing.GetType() == modifier.GetType()))
     {
       SetEventFinished(L10NLookup("ENDLESS_CHOICE_EVENT.pages.DONE.already_has"));
-      return;
+      return Task.CompletedTask;
     }
 
     ApplyRuntimeSafetyBeforeDebuffActivation(modifier, runState);
@@ -171,6 +181,28 @@ public class EndlessChoiceEvent : EventModel
 
     MainFile.Logger.Info($"[Endless] Endless choice picked modifier: {modifier.Id}.");
     SetEventFinished(L10NLookup("ENDLESS_CHOICE_EVENT.pages.DONE.picked"));
+    return Task.CompletedTask;
+  }
+
+  private bool ShouldApplySharedGlobalEffect(RunState runState)
+  {
+    if (!IsShared)
+    {
+      return true;
+    }
+
+    Player? primaryPlayer = runState.Players.FirstOrDefault();
+    return primaryPlayer != null && Owner?.NetId == primaryPlayer.NetId;
+  }
+
+  private IEnumerable<Player> GetRewardTargets(RunState runState)
+  {
+    if (IsShared)
+    {
+      return Owner != null ? new[] { Owner } : Enumerable.Empty<Player>();
+    }
+
+    return runState.Players;
   }
 
   private static void ApplyRuntimeSafetyBeforeDebuffActivation(ModifierModel modifier, RunState runState)
@@ -227,7 +259,7 @@ public class EndlessChoiceEvent : EventModel
     int endlessDepth = Math.Max(1, runState.CurrentActIndex - 2);
     int goldAmount = 60 + endlessDepth * 20;
 
-    foreach (var player in runState.Players)
+    foreach (Player player in GetRewardTargets(runState))
     {
       await PlayerCmd.GainGold(goldAmount, player);
     }
@@ -238,7 +270,7 @@ public class EndlessChoiceEvent : EventModel
 
   private async Task ChooseHealBoon(RunState runState)
   {
-    foreach (var player in runState.Players)
+    foreach (Player player in GetRewardTargets(runState))
     {
       int healAmount = Math.Max(1, (int)Math.Ceiling(player.Creature.MaxHp * 0.20m));
       await CreatureCmd.Heal(player.Creature, healAmount);
@@ -250,7 +282,7 @@ public class EndlessChoiceEvent : EventModel
 
   private async Task ChooseRelicBoon(RunState runState)
   {
-    foreach (var player in runState.Players)
+    foreach (Player player in GetRewardTargets(runState))
     {
       var relic = RelicFactory.PullNextRelicFromFront(player).ToMutable();
       await RelicCmd.Obtain(relic, player);
