@@ -26,14 +26,6 @@ public static class EndlessActConsoleCmdPatch
     if (!int.TryParse(args[0], out int targetAct)) return true;
     if (!InfinityEndlessModeDebuff.IsActive(issuingPlayer.RunState)) return true;
 
-    if (issuingPlayer.RunState.Players.Count > 1)
-    {
-      __result = new CmdResult(success: false,
-        msg: "[Endless] `act X` long jump is disabled in multiplayer to prevent map vote desync. Use normal progression or singleplayer debug.");
-      MainFile.Logger.Warn($"[Endless Debug] Blocked multiplayer act jump command: act {targetAct}.");
-      return false;
-    }
-
     int count = issuingPlayer.RunState.Acts.Count;
 
     // 目标在当前已有幕内（包括下限错误）交给原始命令处理
