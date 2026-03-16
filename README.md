@@ -51,6 +51,31 @@
 
 ## 给开发者
 
+### 环境路径配置（多人协作）
+
+为避免在 `MoreCustoms.csproj` 里硬编码个人机器路径，项目改为从根目录 `.env` 读取以下变量：
+
+- `SteamLibraryPath`
+- `GodotPath`
+
+首次拉取后请执行：
+
+1. 复制 `.env.example` 为 `.env`
+2. 按自己机器实际路径填写上述两个变量
+
+示例：
+
+```env
+SteamLibraryPath=G:/steam/steamapps
+GodotPath=D:/Godot_v4.5.1-stable_mono_win64/Godot_v4.5.1-stable_mono_win64/Godot_v4.5.1-stable_mono_win64.exe
+```
+
+说明：
+
+- `.env` 已加入 `.gitignore`，不会提交到仓库
+- `.env.example` 作为团队模板应保持在仓库中
+- `build/publish` 命令保持不变，仅路径来源变为 `.env`
+
 ### 本地开发流程
 
 1. 关闭游戏

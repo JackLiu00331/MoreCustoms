@@ -18,3 +18,5 @@ config.json
 *.sln.docstates
 *cs.uid
 *.user
+.env
+.env.local

@@ -9,6 +9,13 @@
         <DefaultItemExcludes>packages/**</DefaultItemExcludes>
     </PropertyGroup>
 
+    <!-- Local developer environment values loaded from .env -->
+    <PropertyGroup>
+        <EnvFilePath>$(MSBuildProjectDirectory)/.env</EnvFilePath>
+        <EnvSteamLibraryPath Condition="Exists('$(EnvFilePath)')">$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(EnvFilePath)')), '(?m)^\s*SteamLibraryPath\s*=\s*"?([^"\r\n]+)"?\s*$').Groups[1].Value)</EnvSteamLibraryPath>
+        <EnvGodotPath Condition="Exists('$(EnvFilePath)')">$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(EnvFilePath)')), '(?m)^\s*GodotPath\s*=\s*"?([^"\r\n]+)"?\s*$').Groups[1].Value)</EnvGodotPath>
+    </PropertyGroup>
+
     <!-- OS Detection -->
     <PropertyGroup>
         <IsWindows>false</IsWindows>
@@ -22,12 +29,11 @@
     <!-- Windows -->
     <PropertyGroup Condition="'$(IsWindows)' == 'true'">
         <AutoSteamPath>$(registry:HKEY_CURRENT_USER\Software\Valve\Steam@SteamPath)\steamapps</AutoSteamPath>
+        <SteamLibraryPath Condition="'$(SteamLibraryPath)' == '' and '$(EnvSteamLibraryPath)' != ''">$(EnvSteamLibraryPath)</SteamLibraryPath>
         <SteamLibraryPath Condition="'$(SteamLibraryPath)' == '' and Exists('$(AutoSteamPath)/common/Slay the Spire 2')">$(AutoSteamPath)</SteamLibraryPath>
-        <!-- If on Windows and Slay the Spire 2 is not installed in your default steam library, adjust the following.-->
-        <SteamLibraryPath Condition="'$(SteamLibraryPath)' == ''">G:/steam/steamapps</SteamLibraryPath>
         <Sts2Path Condition="'$(Sts2Path)' == ''">$(SteamLibraryPath)/common/Slay the Spire 2</Sts2Path>
         <Sts2DataDir Condition="'$(Sts2DataDir)' == ''">$(Sts2Path)/data_sts2_windows_x86_64</Sts2DataDir>
-        <GodotPath Condition="'$(GodotPath)' == ''">D:/Godot_v4.5.1-stable_mono_win64/Godot_v4.5.1-stable_mono_win64/Godot_v4.5.1-stable_mono_win64.exe</GodotPath>
+        <GodotPath Condition="'$(GodotPath)' == '' and '$(EnvGodotPath)' != ''">$(EnvGodotPath)</GodotPath>
     </PropertyGroup>
 
     <!-- Linux -->
