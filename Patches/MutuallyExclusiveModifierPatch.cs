@@ -4,6 +4,7 @@ using System.Linq;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Modifiers;
+using ModTemplate.Models;
 using ModTemplate.Modifiers;
 
 namespace ModTemplate.Patches;
@@ -69,6 +70,7 @@ public static class MutuallyExclusiveModifierPatch
     List<ModifierModel> allModifiers = ModelDb.GoodModifiers
       .Concat(ModelDb.BadModifiers)
       .Where(modifier => modifier.GetType() != typeof(InfinityEndlessModeDebuff))
+      .Where(modifier => !EndlessCompatibleModifierRegistry.IsCompatibleWithEndless(modifier.GetType()))
       .GroupBy(modifier => modifier.GetType())
       .Select(group => group.First())
       .ToList();
