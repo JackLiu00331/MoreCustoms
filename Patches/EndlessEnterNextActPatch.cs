@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using HarmonyLib;
+using MegaCrit.Sts2.Core.Multiplayer.Game;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Acts;
 using MegaCrit.Sts2.Core.Runs;
@@ -72,13 +73,16 @@ public static class EndlessEnterNextActPatch
   {
     try
     {
-      EndlessProgress progress = GetOrCreateProgress(runState);
-      progress.LoopCount++;
-      AppendLoopAct(runState, progress.LoopCount);
+      using (new NetLoadingHandle(runManager.NetService))
+      {
+        EndlessProgress progress = GetOrCreateProgress(runState);
+        progress.LoopCount++;
+        AppendLoopAct(runState, progress.LoopCount);
 
-      int nextActIndex = runState.CurrentActIndex + 1;
-      MainFile.Logger.Info($"[Endless] Loop #{progress.LoopCount} appended (initial acts={progress.InitialActCount}). Entering act index {nextActIndex}.");
-      await EnterActWithRetry(runManager, nextActIndex);
+        int nextActIndex = runState.CurrentActIndex + 1;
+        MainFile.Logger.Info($"[Endless] Loop #{progress.LoopCount} appended (initial acts={progress.InitialActCount}). Entering act index {nextActIndex}.");
+        await EnterActWithRetry(runManager, nextActIndex);
+      }
     }
     finally
     {
@@ -91,7 +95,7 @@ public static class EndlessEnterNextActPatch
 
   private static async Task EnterActWithRetry(RunManager runManager, int nextActIndex)
   {
-    const int maxAttempts = 4;
+    const int maxAttempts = 6;
     for (int attempt = 1; attempt <= maxAttempts; attempt++)
     {
       try
@@ -101,7 +105,7 @@ public static class EndlessEnterNextActPatch
       }
       catch (ObjectDisposedException ex) when (attempt < maxAttempts)
       {
-        int delayMs = 60 * attempt;
+        int delayMs = 120 * attempt;
         MainFile.Logger.Warn($"[Endless] EnterAct hit disposed object ({ex.ObjectName}) on attempt {attempt}/{maxAttempts}. Retrying in {delayMs}ms for act {nextActIndex}.");
         await Task.Yield();
         await Task.Delay(delayMs);
