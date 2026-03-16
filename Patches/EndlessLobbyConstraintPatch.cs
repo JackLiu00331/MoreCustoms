@@ -3,6 +3,7 @@ using System.Linq;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Multiplayer.Game.Lobby;
+using ModTemplate.Models;
 using ModTemplate.Modifiers;
 
 namespace ModTemplate.Patches;
@@ -25,10 +26,23 @@ public static class EndlessLobbyConstraintPatch
       return;
     }
 
-    modifiers = new List<ModifierModel>
+    List<ModifierModel> filteredModifiers = modifiers
+      .Where(modifier => modifier.GetType() == typeof(InfinityEndlessModeDebuff) || EndlessCompatibleModifierRegistry.IsCompatibleWithEndless(modifier))
+      .ToList();
+
+    if (filteredModifiers.Count != modifiers.Count)
     {
-      endless
-    };
+      List<string> removedModifiers = modifiers
+        .Except(filteredModifiers)
+        .Select(modifier => modifier.GetType().Name)
+        .Distinct()
+        .OrderBy(name => name)
+        .ToList();
+
+      MainFile.Logger.Info($"[Endless] Removed incompatible modifiers while endless mode is active: {string.Join(", ", removedModifiers)}");
+    }
+
+    modifiers = filteredModifiers;
 
     if (__instance.Ascension != 0)
     {

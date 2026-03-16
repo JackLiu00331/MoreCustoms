@@ -16,6 +16,7 @@ using MegaCrit.Sts2.Core.Models.Modifiers;
 using MegaCrit.Sts2.Core.Nodes;
 using MegaCrit.sts2.Core.Nodes.TopBar;
 using MegaCrit.Sts2.Core.Runs;
+using ModTemplate.Models;
 using ModTemplate.Modifiers;
 
 namespace ModTemplate.Models.Events;
@@ -47,19 +48,6 @@ public class EndlessChoiceEvent : EventModel
 
   private static readonly FieldInfo ModifiersBackingField = AccessTools.Field(typeof(RunState), "<Modifiers>k__BackingField");
 
-  private static readonly IReadOnlyList<Type> EndlessChoiceDebuffPool = new List<Type>
-  {
-    typeof(BigGameHunter),
-    typeof(DeadlyEvents),
-    typeof(Murderous),
-    typeof(NightTerrors),
-    typeof(Terminal),
-    typeof(CursedRun),
-    typeof(BossHpDoubleDebuff),
-    typeof(ScalingPlatingDebuff),
-    typeof(NoPotionDebuff)
-  };
-
   private const int EndlessDebuffChoiceCount = 3;
 
   private static readonly LocString EndlessBoonGoldTitle = new("events", "ENDLESS_CHOICE_EVENT.pages.INITIAL.boons.gold.title");
@@ -90,9 +78,8 @@ public class EndlessChoiceEvent : EventModel
       return Array.Empty<EventOption>();
     }
 
-    List<Type> candidates = EndlessChoiceDebuffPool
-      .Where(ModelDb.Contains)
-      .Where(type => !runState.Modifiers.Any(modifier => modifier.GetType() == type))
+    List<ModifierModel> candidates = EndlessCompatibleModifierRegistry
+      .CreateEndlessAncientChoiceModifiers(runState)
       .ToList();
 
     if (candidates.Count == 0)
@@ -100,27 +87,35 @@ public class EndlessChoiceEvent : EventModel
       return GenerateFallbackEndlessBoonOptions(runState);
     }
 
-    List<Type> selected = candidates
+    List<ModifierModel> selected = candidates
       .OrderBy(_ => Rng.NextInt(int.MaxValue))
-      .ThenBy(type => type.FullName)
+      .ThenBy(GetStableSortKey)
       .Take(EndlessDebuffChoiceCount)
       .ToList();
 
     List<EventOption> options = new List<EventOption>(selected.Count);
-    foreach (Type type in selected)
+    foreach (ModifierModel modifier in selected)
     {
-      ModifierModel canonical = ModelDb.GetById<ModifierModel>(ModelDb.GetId(type));
-      ModifierModel mutable = canonical.ToMutable();
       options.Add(new EventOption(
         this,
-        () => ChooseDebuff(mutable),
-        mutable.Title,
-        mutable.Description,
-        $"ENDLESS_CHOICE_EVENT.pages.INITIAL.options.{mutable.Id.Entry}",
-        mutable.HoverTips));
+        () => ChooseModifier(modifier),
+        modifier.Title,
+        modifier.Description,
+        $"ENDLESS_CHOICE_EVENT.pages.INITIAL.options.{modifier.Id.Entry}",
+        modifier.HoverTips));
     }
 
     return options;
+  }
+
+  private static string GetStableSortKey(ModifierModel modifier)
+  {
+    if (modifier is CharacterCards characterCards)
+    {
+      return $"{modifier.Id.Entry}:{characterCards.CharacterModel}";
+    }
+
+    return modifier.Id.Entry;
   }
 
   private IReadOnlyList<EventOption> GenerateFallbackEndlessBoonOptions(RunState runState)
@@ -151,7 +146,7 @@ public class EndlessChoiceEvent : EventModel
     };
   }
 
-  private Task ChooseDebuff(ModifierModel modifier)
+  private Task ChooseModifier(ModifierModel modifier)
   {
     if (Owner?.RunState is not RunState runState)
     {
@@ -166,13 +161,13 @@ public class EndlessChoiceEvent : EventModel
     }
 
     List<ModifierModel> updated = runState.Modifiers.ToList();
-    if (updated.Any(existing => existing.GetType() == modifier.GetType()))
+    if (updated.Any(existing => existing.IsEquivalent(modifier)))
     {
       SetEventFinished(L10NLookup("ENDLESS_CHOICE_EVENT.pages.DONE.already_has"));
       return Task.CompletedTask;
     }
 
-    ApplyRuntimeSafetyBeforeDebuffActivation(modifier, runState);
+    ApplyRuntimeSafetyBeforeModifierActivation(modifier, runState);
 
     updated.Add(modifier);
     ModifiersBackingField.SetValue(runState, updated);
@@ -205,7 +200,7 @@ public class EndlessChoiceEvent : EventModel
     return runState.Players;
   }
 
-  private static void ApplyRuntimeSafetyBeforeDebuffActivation(ModifierModel modifier, RunState runState)
+  private static void ApplyRuntimeSafetyBeforeModifierActivation(ModifierModel modifier, RunState runState)
   {
     if (modifier.GetType() != typeof(NoPotionDebuff))
     {

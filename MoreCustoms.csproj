@@ -72,6 +72,12 @@
     </ItemGroup>
 
     <ItemGroup>
+        <GodotExportDependency Include="$(Sts2DataDir)/0Harmony.dll" Condition="Exists('$(Sts2DataDir)/0Harmony.dll')" />
+        <GodotExportDependency Include="$(Sts2DataDir)/sts2.dll" Condition="Exists('$(Sts2DataDir)/sts2.dll')" />
+        <GodotExportDependency Include="packages/alchyr.sts2.baselib/**/lib/**/BaseLib.dll" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Compile Remove="MoreCustoms/**" />
         <Compile Remove="materials/**" />
         <Compile Remove="shaders/**" />
@@ -121,6 +127,15 @@
           <Exec Command="&quot;$(GodotPath)&quot; --headless --export-pack &quot;BasicExport&quot; &quot;$(Sts2Path)/mods/$(ModPackageName)/$(ModPackageName).pck&quot;"
               EnvironmentVariables="IsInnerGodotExport=true;MSBUILDDISABLENODEREUSE=1"
               ContinueOnError="WarnAndContinue"/>
+    </Target>
+
+    <Target Name="PrepareGodotExportDependencies" BeforeTargets="GodotPublish" Condition="'$(GodotPath)' != '' and Exists('$(GodotPath)') and '$(IsInnerGodotExport)' != 'true'">
+        <PropertyGroup>
+            <GodotPublishDir Condition="'$(PublishDir)' == ''">$(MSBuildProjectDirectory)/.godot/mono/temp/bin/Release/publish/</GodotPublishDir>
+            <GodotPublishDir Condition="'$(PublishDir)' != ''">$(PublishDir)</GodotPublishDir>
+        </PropertyGroup>
+        <Message Text="Copying export-time runtime dependencies to $(GodotPublishDir)" Importance="high" />
+        <Copy SourceFiles="@(GodotExportDependency)" DestinationFolder="$(GodotPublishDir)" SkipUnchangedFiles="true" />
     </Target>
 
     <Target Name="GodotPublishSkipped" AfterTargets="Publish" Condition="'$(GodotPath)' == '' or !Exists('$(GodotPath)')">
