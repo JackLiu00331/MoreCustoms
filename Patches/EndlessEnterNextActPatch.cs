@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Multiplayer.Game;
@@ -39,6 +40,8 @@ public static class EndlessEnterNextActPatch
 
   private static readonly object TransitionLock = new();
 
+  private static readonly SemaphoreSlim EnterActGate = new(1, 1);
+
   [HarmonyPrefix]
   private static bool ContinueIntoEndlessLoop(RunManager __instance, ref Task __result)
   {
@@ -73,6 +76,7 @@ public static class EndlessEnterNextActPatch
   {
     try
     {
+      await EnterActGate.WaitAsync();
       using (new NetLoadingHandle(runManager.NetService))
       {
         EndlessProgress progress = GetOrCreateProgress(runState);
@@ -86,6 +90,11 @@ public static class EndlessEnterNextActPatch
     }
     finally
     {
+      if (EnterActGate.CurrentCount == 0)
+      {
+        EnterActGate.Release();
+      }
+
       lock (TransitionLock)
       {
         TransitioningRuns.Remove(runState);
@@ -95,17 +104,22 @@ public static class EndlessEnterNextActPatch
 
   private static async Task EnterActWithRetry(RunManager runManager, int nextActIndex)
   {
-    const int maxAttempts = 6;
+    const int maxAttempts = 8;
     for (int attempt = 1; attempt <= maxAttempts; attempt++)
     {
       try
       {
+        if (attempt > 1)
+        {
+          await Task.Yield();
+        }
+
         await runManager.EnterAct(nextActIndex);
         return;
       }
       catch (ObjectDisposedException ex) when (attempt < maxAttempts)
       {
-        int delayMs = 120 * attempt;
+        int delayMs = 250 * attempt;
         MainFile.Logger.Warn($"[Endless] EnterAct hit disposed object ({ex.ObjectName}) on attempt {attempt}/{maxAttempts}. Retrying in {delayMs}ms for act {nextActIndex}.");
         await Task.Yield();
         await Task.Delay(delayMs);
