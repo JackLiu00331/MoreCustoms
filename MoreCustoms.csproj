@@ -126,7 +126,7 @@
         <Message Text="Exporting Godot .pck to mods folder" Importance="high"/>
           <Exec Command="&quot;$(GodotPath)&quot; --headless --export-pack &quot;BasicExport&quot; &quot;$(Sts2Path)/mods/$(ModPackageName)/$(ModPackageName).pck&quot;"
               EnvironmentVariables="IsInnerGodotExport=true;MSBUILDDISABLENODEREUSE=1"
-              ContinueOnError="WarnAndContinue"/>
+              ContinueOnError="ErrorAndStop"/>
     </Target>
 
     <Target Name="PrepareGodotExportDependencies" BeforeTargets="GodotPublish" Condition="'$(GodotPath)' != '' and Exists('$(GodotPath)') and '$(IsInnerGodotExport)' != 'true'">
@@ -139,6 +139,14 @@
     </Target>
 
     <Target Name="GodotPublishSkipped" AfterTargets="Publish" Condition="'$(GodotPath)' == '' or !Exists('$(GodotPath)')">
-        <Message Text="Skipping Godot .pck export because GodotPath is not configured." Importance="high"/>
+        <Error Text="Godot .pck export is required but GodotPath is not configured or invalid. Create .env from .env.example and set GodotPath to Godot 4.5.1 Mono executable." />
+    </Target>
+
+    <Target Name="VerifyGodotPckOutput" AfterTargets="GodotPublish" Condition="'$(IsInnerGodotExport)' != 'true'">
+        <PropertyGroup>
+            <ExpectedPckPath>$(Sts2Path)/mods/$(ModPackageName)/$(ModPackageName).pck</ExpectedPckPath>
+        </PropertyGroup>
+        <Error Text="Godot export finished but pck file was not found: $(ExpectedPckPath)" Condition="!Exists('$(ExpectedPckPath)')" />
+        <Message Text="Godot .pck export verified: $(ExpectedPckPath)" Importance="high" Condition="Exists('$(ExpectedPckPath)')"/>
     </Target>
 </Project>

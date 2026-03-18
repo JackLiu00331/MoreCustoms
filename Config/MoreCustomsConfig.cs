@@ -44,9 +44,10 @@ public static class MoreCustomsConfig
       bool hasEndlessDoubleBossExtraHpPercent = raw.Contains("\"EndlessDoubleBossExtraHpPercent\"", StringComparison.OrdinalIgnoreCase);
       bool hasEndlessEnemyStrengthEveryActs = raw.Contains("\"EndlessEnemyStrengthEveryActs\"", StringComparison.OrdinalIgnoreCase);
       bool hasEndlessEnemyStrengthPerStep = raw.Contains("\"EndlessEnemyStrengthPerStep\"", StringComparison.OrdinalIgnoreCase);
+      bool hasLastSeenUpdateNoticeVersion = raw.Contains("\"LastSeenUpdateNoticeVersion\"", StringComparison.OrdinalIgnoreCase);
 
       bool normalizedChanged = Normalize();
-      bool shouldRewrite = loaded == null || !hasBossHpMultiplier || !hasPlatingBasePerAct || !hasGoldGainMultiplier || !hasRestSiteSmithCount || !hasEnableEndlessDebugLogs || !hasEndlessEnemyHpPerActPercent || !hasEndlessBossExtraHpPerActPercent || !hasEndlessDoubleBossExtraHpPercent || !hasEndlessEnemyStrengthEveryActs || !hasEndlessEnemyStrengthPerStep || normalizedChanged;
+      bool shouldRewrite = loaded == null || !hasBossHpMultiplier || !hasPlatingBasePerAct || !hasGoldGainMultiplier || !hasRestSiteSmithCount || !hasEnableEndlessDebugLogs || !hasEndlessEnemyHpPerActPercent || !hasEndlessBossExtraHpPerActPercent || !hasEndlessDoubleBossExtraHpPercent || !hasEndlessEnemyStrengthEveryActs || !hasEndlessEnemyStrengthPerStep || !hasLastSeenUpdateNoticeVersion || normalizedChanged;
 
       if (shouldRewrite)
       {
@@ -126,7 +127,34 @@ public static class MoreCustomsConfig
       changed = true;
     }
 
+    if (Current.LastSeenUpdateNoticeVersion == null)
+    {
+      Current.LastSeenUpdateNoticeVersion = string.Empty;
+      changed = true;
+    }
+
     return changed;
+  }
+
+  public static bool ShouldShowUpdateNotice(string currentVersion)
+  {
+    if (string.IsNullOrWhiteSpace(currentVersion) || string.Equals(currentVersion, "unknown", StringComparison.OrdinalIgnoreCase))
+    {
+      return false;
+    }
+
+    return !string.Equals(Current.LastSeenUpdateNoticeVersion, currentVersion, StringComparison.OrdinalIgnoreCase);
+  }
+
+  public static void MarkUpdateNoticeSeen(string currentVersion)
+  {
+    if (string.IsNullOrWhiteSpace(currentVersion))
+    {
+      return;
+    }
+
+    Current.LastSeenUpdateNoticeVersion = currentVersion;
+    SaveCurrent();
   }
 
   private static void SaveCurrent()
@@ -159,5 +187,7 @@ public static class MoreCustomsConfig
     public int EndlessEnemyStrengthEveryActs { get; set; } = 1;
 
     public int EndlessEnemyStrengthPerStep { get; set; } = 1;
+
+    public string LastSeenUpdateNoticeVersion { get; set; } = string.Empty;
   }
 }
