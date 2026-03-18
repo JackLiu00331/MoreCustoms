@@ -1,6 +1,6 @@
 # MoreCustoms（Slay the Spire 2 Mod）
 
-当前版本：`v2.1.2`
+当前版本：`v2.2.0`
 
 为《杀戮尖塔2》自定义模式提供更多可选 Modifier（含正面 Buff 与负面 Debuff），并支持通过配置文件调整关键数值。
 
