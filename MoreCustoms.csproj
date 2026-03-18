@@ -90,7 +90,7 @@
 
     <ItemGroup>
         <None Include=".gitignore" />
-        <None Include="mod_manifest.json" />
+        <None Include="MoreCustoms.json" />
         <None Include="project.godot"/>
         <None Include="MoreCustoms/**" />
     </ItemGroup>
@@ -109,7 +109,7 @@
         <MakeDir Directories="$(ModOutputDir)" />
         <Message Text="Copying mod files to mods folder." Importance="high" />
         <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModOutputDir)/" />
-        <Copy SourceFiles="mod_manifest.json" DestinationFolder="$(ModOutputDir)/" />
+        <Copy SourceFiles="MoreCustoms.json" DestinationFolder="$(ModOutputDir)/" />
 
         <ItemGroup>
             <ConfigFile Include="config.json" Condition="!Exists('$(ModOutputDir)/config.json')" />

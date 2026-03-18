@@ -38,7 +38,7 @@
 
 - `MoreCustoms.dll`
 - `MoreCustoms.pck`
-- `mod_manifest.json`
+- `MoreCustoms.json`
 - `config.json`（首次运行后可自动生成/更新）
 
 ### 常见问题
