@@ -26,10 +26,20 @@ public static class SmithRestSiteOptionPatch
   {
     Player owner = Traverse.Create(smithOption).Property("Owner").GetValue<Player>();
 
+    int upgradableCount = owner.Deck.UpgradableCardCount;
+    if (upgradableCount < 1)
+    {
+      return false;
+    }
+
     int maxSelect = smithOption.SmithCount;
     if (maxSelect < 1)
     {
       maxSelect = 1;
+    }
+    else if (maxSelect > upgradableCount)
+    {
+      maxSelect = upgradableCount;
     }
 
     CardSelectorPrefs prefs = new CardSelectorPrefs(CardSelectorPrefs.UpgradeSelectionPrompt, 1, maxSelect)
@@ -38,7 +48,7 @@ public static class SmithRestSiteOptionPatch
       RequireManualConfirmation = true
     };
 
-    List<CardModel> selection = (await CardSelectCmd.FromDeckGeneric(owner, prefs, card => card.IsUpgradable)).ToList();
+    List<CardModel> selection = (await CardSelectCmd.FromDeckForUpgrade(owner, prefs)).ToList();
     Traverse.Create(smithOption).Field("_selection").SetValue(selection);
 
     if (selection.Count == 0)
